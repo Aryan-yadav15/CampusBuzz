@@ -5,17 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-
-  const events = await getAllEvents(
-    {
-      query: '',
-      category: '',
-      page: 1,
-      limit: 6
-    }
-  )
-  console.log(events)
-
+  const events = await getAllEvents({
+    query: '',
+    category: '',
+    page: 1,
+    limit: 6
+  });
+  
+  console.log(events);
 
   return (
     <>
@@ -30,7 +27,6 @@ export default async function Home() {
               </Link>
             </Button>
           </div>
-
           <Image
             src="/assets/images/hero.png"
             alt="hero"
@@ -44,15 +40,22 @@ export default async function Home() {
       <section id="events" className="wrapper my-8 flex flex-col gap-8 md:gap-12">
         <h2 className="h2-bold">Trust by <br /> Thousands of Events</h2>
 
-        <Collection
-          data={[events?.data]}
-          emptyTitle="No events right now"
-          emptyStateSubtext=" Come Back Later"
-          collectionType='All_Events'
-          limit={6}
-          page={1}
-          totalPages={2}
-        />
+        {events && events.data ? (
+          <Collection
+            data={events.data} 
+            emptyTitle="No events right now"
+            emptyStateSubtext="Come Back Later"
+            collectionType="All_Events"
+            limit={6}
+            page={1}
+            totalPages={events.totalPages}
+          />
+        ) : (
+          <div>
+            <h3>No events available</h3>
+            <p>Come back later.</p>
+          </div>
+        )}
       </section>
     </>
   );
