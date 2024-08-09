@@ -47,31 +47,56 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialValues
   })
-
  
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
-    let uploadedImageUrl=values.url
+    let uploadedImageUrl = values.imageUrl;
+
     if(files.length > 0) {
       const uploadedImages = await startUpload(files)
-      if(!uploadedImages)
+
+      if(!uploadedImages) {
         return
-      else{
-        uploadedImageUrl = uploadedImages[0].url
       }
-      if(type === 'Create'){
-        try {
-          const newEvent = await createEvent({
-            event:{...values,imageUrl:uploadedImageUrl},
-            userId,
-            path:'/profile'
-          })
-          if(newEvent){
-            form.reset()
-            router.push(`/events/${newEvent._id}`)
-          }
-        } catch (error) {
-          console.log(error)
+
+      uploadedImageUrl = uploadedImages[0].url
+    }
+
+    if(type === 'Create') {
+      try {
+        const newEvent = await createEvent({
+          event: { ...values, imageUrl: uploadedImageUrl },
+          userId,
+          path: '/profile'
+        })
+
+        if(newEvent) {
+          form.reset();
+          router.push(`/events/${newEvent._id}`)
         }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if(type === 'Update') {
+      if(!eventId) {
+        router.back()
+        return;
+      }
+
+      try {
+        const updatedEvent = await updateEvent({
+          userId,
+          event: { ...values, imageUrl: uploadedImageUrl, _id: eventId },
+          path: `/events/${eventId}`
+        })
+
+        if(updatedEvent) {
+          form.reset();
+          router.push(`/events/${updatedEvent._id}`)
+        }
+      } catch (error) {
+        console.log(error);
       }
     }
   }
@@ -180,7 +205,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                       <p className="ml-3 whitespace-nowrap text-grey-600">Start Date:</p>
                       <DatePicker 
                         selected={field.value} 
-                        onChange={(date: Date | null) => field.onChange(date)} 
+                        onChange={(date: Date|null) => field.onChange(date)} 
                         showTimeSelect
                         timeInputLabel="Time:"
                         dateFormat="MM/dd/yyyy h:mm aa"
@@ -211,7 +236,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                       <p className="ml-3 whitespace-nowrap text-grey-600">End Date:</p>
                       <DatePicker 
                         selected={field.value} 
-                        onChange={(date: Date | null) => field.onChange(date)} 
+                        onChange={(date: Date|null) => field.onChange(date)} 
                         showTimeSelect
                         timeInputLabel="Time:"
                         dateFormat="MM/dd/yyyy h:mm aa"

@@ -1,9 +1,10 @@
 import { IEvent } from '@/lib/database/models/event.model'
 import { formatDateTime } from '@/lib/utils'
-import { auth } from '@clerk/nextjs/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import { DeleteConfirmation } from './DeleteConfirmation'
+import { auth } from '@clerk/nextjs/server'
 
 type CardProps = {
   event: IEvent,
@@ -32,6 +33,7 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
             <Image src="/assets/icons/edit.svg" alt="edit" width={20} height={20} />
           </Link>
 
+          <DeleteConfirmation eventId={event._id} />
         </div>
       )}
 
